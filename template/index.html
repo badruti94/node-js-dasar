@@ -10,4 +10,26 @@
     <li><a href="/contact">contact</a></li>
 </ul>
 
+<table border="1" style="width: 400px; border-collapse: collapse;">
+    <thead>
+        <tr>
+            <td>No Indux</td>
+            <td>Nama</td>
+            <td>Alamat</td>
+        </tr>
+    </thead>
+    <tbody>
+        {% for d in data %}
+        <tr>
+            <td>{{ d.no_induk }} </td>
+            <td> {{ d.nama }} </td>
+            <td> {{ d.alamat }} </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<br>
+
+<a href="/insert">Tambah Data</a>
 {% endblock %}

@@ -3,6 +3,7 @@ var url = require('url')
 var router = require('routes')()
 var view = require('swig')
 var mysql = require('mysql')
+var qString = require('querystring')
 const {
     RSA_NO_PADDING
 } = require('constants')
@@ -18,15 +19,21 @@ var connection = mysql.createConnection({
 router.addRoute('/', function (req, res) {
     connection.query("select * from mahasiswa", function (err, rows, field) {
         if (err) throw err;
+
+        var html = view.compileFile('./template/index.html')({
+            title: 'Data Mahasiswa',
+            data: rows
+        })
+
         res.writeHead(200, {
             'Content-Type': 'text/html'
         })
-        res.end(JSON.stringify(rows))
+        res.end(html)
     })
 })
 
 router.addRoute('/insert', function (req, res) {
-    connection.query("insert into mahasiswa set ?", {
+    /* connection.query("insert into mahasiswa set ?", {
         no_induk: '1110100604',
         nama: 'Mahrusssah',
         alamat: 'Genteng'
@@ -37,7 +44,34 @@ router.addRoute('/insert', function (req, res) {
             'Content-Type': 'text/html'
         })
         res.end(field.affectedRows + " Affected Rows")
-    })
+    }) */
+
+    if (req.method.toUpperCase() == "POST") {
+        req.on('data', function (chuncks) {
+            const data_post = qString.parse(chuncks.toString())
+            console.log(data_post);
+
+            connection.query("insert into mahasiswa set ?", data_post, function (err, field) {
+                if (err) throw err;
+                
+                res.writeHead(302, {
+                    'Location': '/'
+                })
+                res.end();
+            })
+        })
+
+
+    } else {
+        var html = view.compileFile('./template/form.html')()
+
+        res.writeHead(200, {
+            'Content-Type': 'text/html'
+        })
+        res.end(html)
+    }
+
+
 })
 
 

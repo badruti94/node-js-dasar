@@ -1,14 +1,29 @@
 {% extends 'layout.html' %}
-{% block title %} Form page {% endblock %}
+{% block title %} Tambah Data {% endblock %}
 {% block content %}
 
 
-I am contact page
 
+<h2>Tambah Data</h2>
 <form method="post">
-    <label for="">nama</label> <input name="nama" type="text"> <br>
-    <label for="">alamat</label> <textarea name="alamat" id="" cols="30" rows="10"></textarea> <br>
-    <button type="submit">kirim</button>
+    <table style="width: 400px;" >
+        <tr>
+            <td>No Induk</td>
+            <td> <input type="text" name="no_induk" > </td>
+        </tr>
+        <tr>
+            <td>Nama</td>
+            <td> <input type="text" name="nama"> </td>
+        </tr>
+        <tr>
+            <td>Alamat</td>
+            <td> <textarea name="alamat" ></textarea> </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td> <button type="submit">Simpan</button> </td>
+        </tr>
+    </table>
 </form>
 
 {% endblock %}
