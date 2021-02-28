@@ -1,32 +1,47 @@
 const http = require('http')
 const fs = require('fs')
+const url = require('url')
+const qString = require('querystring')
 
 http.createServer((req, res) => {
-    let kode;
-    let file = ''
+    const access = url.parse(req.url)
+    if (access.pathname == "/") {
+        const data = qString.parse(access.query)
+        res.writeHead(200, {
+            "Content-Type": "text/html"
+        })
+        res.end(JSON.stringify(data));
+    } else if (access.pathname == "/form") {
+        if (req.method.toUpperCase() == "POST") {
+            let post_data = ''
 
-    switch (req.url) {
-        case '/':
-            kode = 200
-            file = 'index.html'
-            break
-        case '/contact':
-            kode = 200
-            file = 'contact.html'
-            break
-        default:
-            kode = 404
-            file = '404.html'
-            break
+            req.on('data', chunck => {
+                console.log(1);
+                const chunck_string = chunck.toString()
+                console.log(chunck_string);
+                post_data += chunck_string
+                console.log(2);
+                res.writeHead(200, {
+                    "Content-Type": "text/html"
+                })
+                res.end(JSON.stringify(qString.parse(post_data)))
+            })
+
+        }
+
+        res.writeHead(200, {
+            "Content-Type": "text/html"
+        })
+        fs.createReadStream(`./template/form.html`).pipe(res);
+    } else {
+        res.writeHead(404, {
+            "Content-Type": "text/html"
+        })
+        fs.createReadStream(`./template/404.html`).pipe(res);
     }
 
 
-    res.writeHead(kode, {
-        "Content-Type": "text/html"
-    })
 
-    fs.createReadStream(`./template/${file}`).pipe(res);
-
-}).listen(3000)
+}).listen(3001)
 
 console.log('server is running');
