@@ -53,7 +53,7 @@ router.addRoute('/insert', function (req, res) {
 
             connection.query("insert into mahasiswa set ?", data_post, function (err, field) {
                 if (err) throw err;
-                
+
                 res.writeHead(302, {
                     'Location': '/'
                 })
@@ -76,8 +76,8 @@ router.addRoute('/insert', function (req, res) {
 
 
 
-router.addRoute('/update', function (req, res) {
-    connection.query("update mahasiswa set ? where ?", [{
+router.addRoute('/update/:id', function (req, res) {
+    /* connection.query("update mahasiswa set ? where ?", [{
             nama: 'Mahrusssahroni'
         },
         {
@@ -90,19 +90,70 @@ router.addRoute('/update', function (req, res) {
             'Content-Type': 'text/html'
         })
         res.end(fields.changeRows + " Rows Updated");
+    }) */
+
+    connection.query("select * from mahasiswa where ?", {
+        no_induk: this.params.id
+    }, function (err, rows, field) {
+        if (rows.length) {
+            var data = rows[0]
+            if (req.method.toUpperCase() == "POST") {
+                req.on('data', function (chuncks) {
+                    const data_post = qString.parse(chuncks.toString())
+
+
+                    /* connection.query("insert into mahasiswa set ?", data_post, function (err, field) {
+                        if (err) throw err;
+
+                        res.writeHead(302, {
+                            'Location': '/'
+                        })
+                        res.end();
+                    }) */
+
+                    connection.query("update mahasiswa set ? where ?", [
+                        data_post,
+                        {
+                            no_induk: data.no_induk
+                        }
+                    ], function (err, fields) {
+                        if (err) throw err
+
+                        res.writeHead(302, {
+                            "Location": "/"
+                        })
+                        res.end()
+                    })
+                })
+
+            } else {
+                var html = view.compileFile('./template/form_update.html')({
+                    data: data
+                })
+                res.writeHead(200, {
+                    'Content-Type': 'text/html'
+                })
+                res.end(html)
+            }
+        } else {
+            res.writeHead(404, {
+                'Content-Type': 'text/html'
+            })
+            res.end('Page not found')
+        }
     })
 })
 
-router.addRoute('/delete', function (req, res) {
+router.addRoute('/delete/:id', function (req, res) {
     connection.query("delete from mahasiswa where ?", {
-        no_induk: "1110100604"
+        no_induk: this.params.id
     }, function (err, fields) {
         if (err) throw err;
 
-        res.writeHead(200, {
-            'Content-Type': 'text/html'
+        res.writeHead(302, {
+            "Location": "/"
         })
-        res.end(fields.affectedRows + " Rows Deleted")
+        res.end()
     })
 })
 
