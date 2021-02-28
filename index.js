@@ -1,47 +1,29 @@
-const http = require('http')
-const fs = require('fs')
-const url = require('url')
-const qString = require('querystring')
+var http = require('http')
+var url = require('url')
+var routes = require('routes')()
 
-http.createServer((req, res) => {
-    const access = url.parse(req.url)
-    if (access.pathname == "/") {
-        const data = qString.parse(access.query)
-        res.writeHead(200, {
-            "Content-Type": "text/html"
-        })
-        res.end(JSON.stringify(data));
-    } else if (access.pathname == "/form") {
-        if (req.method.toUpperCase() == "POST") {
-            let post_data = ''
+routes.addRoute('/', function(req,res){
+    res.writeHead(200,{'Content-Type' : 'text/html'});
+    res.end('Index Page')
+});
 
-            req.on('data', chunck => {
-                console.log(1);
-                const chunck_string = chunck.toString()
-                console.log(chunck_string);
-                post_data += chunck_string
-                console.log(2);
-                res.writeHead(200, {
-                    "Content-Type": "text/html"
-                })
-                res.end(JSON.stringify(qString.parse(post_data)))
-            })
+routes.addRoute('/profile/:nama/:kota', function(req,res){
+    res.writeHead(200,{'Content-Type' : 'text/html'});
+    res.end(`Profile Page => ${this.params.nama} dari ${this.params.kota}`)
+})
 
-        }
+routes.addRoute('/contact', function(req,res){
+    res.writeHead(200,{'Content-Type' : 'text/html'});
+    res.end('Contact Page')
+})
 
-        res.writeHead(200, {
-            "Content-Type": "text/html"
-        })
-        fs.createReadStream(`./template/form.html`).pipe(res);
-    } else {
-        res.writeHead(404, {
-            "Content-Type": "text/html"
-        })
-        fs.createReadStream(`./template/404.html`).pipe(res);
+http.createServer(function(req,res){
+    var path = url.parse(req.url).pathname;
+    var match = routes.match(path)
+    if(match){
+        match.fn(req,res)
+    }else{
+        res.writeHead(404,{'Content-Type' : 'text/html'});
+        res.end('Page not Found')
     }
-
-
-
-}).listen(3001)
-
-console.log('server is running');
+}).listen(8000);
